@@ -6,7 +6,7 @@ mostrar_error() {
 }
 
 usuario_existe() {
-    id "$1"
+    id "$1" &> /dev/null
 }
 
 crear_usuario() {
@@ -32,12 +32,16 @@ reporte_memoria() {
     read -p "Ingrese el nombre del usuario: " nombre_usuario
     if usuario_existe "$nombre_usuario"
     then
-        filename="/home/$nombre_usuario/reporte_memoria_$(fecha).txt"
+        user_dir="/home/$nombre_usuario"
+        filename="$user_dir/reporte_memoria_$(fecha).txt"
+
+        sudo chown $(whoami) "$user_dir"
         if free -h > "$filename"; then
             echo "Reporte de memoria generado en $filename"
         else
             mostrar_error "Se produjo un error intentando crear el archivo."
         fi
+        sudo chown "$nombre_usuario" "$user_dir"
     else
         mostrar_error "El usuario $nombre_usuario no existe."
     fi
